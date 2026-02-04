@@ -6,9 +6,22 @@ export async function updateSession(request: NextRequest) {
         request,
     })
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    // Handle missing environment variables gracefully
+    if (!supabaseUrl || !supabaseKey) {
+        // If variables are missing (first deployment issues), just pass through
+        // This prevents 500 errors on Vercel while setup is completing
+        return {
+            supabaseResponse,
+            user: null
+        }
+    }
+
     const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        supabaseUrl,
+        supabaseKey,
         {
             cookies: {
                 getAll() {
